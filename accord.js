@@ -3,7 +3,7 @@
  * @FileName: accord.js 						   
  * @Date:   2017-01-27 01:28:00 						   
  * @Last Modified by:   taoyage 	   
- * @Last Modified time: 2017-02-01 16:27:36 	   
+ * @Last Modified time: 2017-02-02 23:47:00 	   
  */
 
 
@@ -21,6 +21,10 @@
 (function(w) {
     'use strict';
 
+    var
+        arr = [],
+        push = arr.push;
+
     /**
      * @discription 创建Accord构造函数
      * @param {[String]} selector 				  [选择器]
@@ -37,25 +41,67 @@
      */
     Accord.fn = Accord.prototype = {
         constructor: Accord,
+        selector: '',
         length: 0,
+
+        //获取当前对象元素个数
+        size: function() {
+            return this.length;
+        },
+
+        //将伪数组转换成真正的数组
         toArray: function() {
             return arr.slice.call(this);
         },
-        map: function() {
 
-        }
+        //通过下标获取dom元素
+        get: function(num) {
+            return num == null ? this.toArray() :
+                (num < 0 ? this[this.length + num] : this[num]);
+        },
+
+        pushStack: function(elems) {
+
+            var ret = Accord.merge(this.constructor(), elems)
+
+            ret.prevObject = this;
+            ret.context = this.context;
+
+            return ret;
+        },
+
+        //调用Accord.each方法进行遍历
+        each: function(callback, args) {
+            return Accord.each(this, callback, args);
+        },
+
+
+        ready: function() {},
+
+
+        eq: function(num) {
+            var len = this.length;
+
+        },
+
+        first: function() {},
+        last: function() {},
+        slice: function() {
+            return 1;
+        },
+        map: function() {},
+        end: function() {},
     };
 
     /**
      * @discription 
      * 用来解析参数selector和context的类型并执行相应的查找
      * 
-     * 
      * @param  {[String]} selector 	[选择器]
      * @param  {[Object]} context  	[选择器上下文]
      * @return {[type]}          	[description]
      */
-    Accord.fn.init = function(selector, context) {
+    var init = Accord.fn.init = function(selector, context) {
         var
             i = 0,
             nodeList;
@@ -84,7 +130,7 @@
             return this;
         }
 
-        //
+        //	
         if (typeof selector === "string") {
             this.context = context || document;
             nodeList = this.context.querySelectorAll(selector);
@@ -97,7 +143,7 @@
         return this;
     };
 
-
+    init.prototype = Accord.fn;
     /**
      * [extend 对Accord或Accord原型进行方法的扩展,也可指定对某个对象进行扩展]
      * @return {[object]} [返回当前对象]
@@ -125,9 +171,63 @@
         return target;
     };
 
-    /*扩展一些静态方法*/
+    /*基本数据类型判断*/
     Accord.extend({
+        isArray: Array.isArray,
+        isUndefined: function(value) {
+            return typeof value === 'undefined';
+        },
+        isDefined: function(value) {
+            return typeof value !== 'undefined';
+        },
+        isObject: function(value) {
+            return typeof value === 'object';
+        },
+        isBlankObject: function(value) {
 
+        },
+        isString: function(value) {
+            console.log(value);
+            return typeof value === 'string';
+        },
+        isNumber: function(value) {
+            return typeof value === 'number';
+        },
+        isDate: function(value) {
+            return toString.call(value) === '[object Date]';
+        },
+        isFunction: function(value) {
+            return typeof value === 'function';
+        },
+        isRegExp: function(value) {
+            return toString.call(value) === '[object RegExp]';
+        },
+        isFile: function(obj) {
+            return toString.call(value) === '[object File]';
+        },
+        isFormData: function(obj) {
+            return toString.call(value) === '[object FormData]'
+        },
+        isBoolean: function(value) {
+            return typeof value === 'boolean';
+        },
+        each: function(obj, callback, args) {
+            var
+                name,
+                i = 0,
+                length = obj.length,
+                isObj = length === undefined || this.isFunction(obj);
+
+            if (isObj) {
+                for (name in obj) {
+                    callback.call(obj[name], obj[name]);
+                }
+            } else {
+                for (; i < length; i++) {
+                    callback.call(obj[i], obj[i], i, obj);
+                }
+            }
+        }
     });
 
     /*扩展原型方法,主要用来扩展需要链式访问的方法*/
